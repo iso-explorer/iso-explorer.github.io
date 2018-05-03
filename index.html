@@ -1,0 +1,372 @@
+<!DOCTYPE>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ISO C++ Explorer - Connecting StackOverflow with IsoCpp</title>
+<script>var hljs, toc = {}, prefix = '';</script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+
+<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+<link rel="stylesheet" type="text/css" href="css/style.css"/>
+<script type="text/javascript" src="js/datatables.min.js"></script>
+<script type="text/javascript" src="js/mustache.min-2.3.0.js"></script>
+
+<link rel="stylesheet" href="css/github-gist.min.css">
+<script src="js/highlight.min.js"></script>
+<script src="js/underscore-min.js"></script>
+
+<script id="template_loading" type="x-tmpl-mustache">
+<div id="post_{{meta.Id}}" class="post"><div class="post-inner">loading...</div></div>
+</script>
+
+<script id="template_tag" type="x-tmpl-mustache">
+<span class="ref-tags">
+{{#isos}}<span class="tag" data-draft="{{name}}">{{name}} [{{average}}]</span>{{/isos}}
+</span>
+</script>
+
+<script id="template_expanded" type="x-tmpl-mustache">
+<div id="return_to_table">↵</div>
+<h2>{{question.Title }}</h2>
+<div class="question" data-id="{{meta.Id}}">
+    {{{question.Body}}}
+</div>
+
+{{#accepted}}
+<div class="accepted answer">
+<div class="top_box">
+<span title="Accepted Answer">✓</span>
+<span title="StackOverflow Score">⤤ {{Score}}</span>
+<span class="created">Created {{CreationDate}}</span>
+<span class="favorite" title="Add to favorite">☆</span>
+</div>
+{{{Body}}}
+</div>
+{{/accepted}}
+
+{{#answers}}
+<div class="answer">
+<div class="top_box">
+<span title="StackOverflow Score">⤤ {{Score}}</span>
+<span class="created">Created {{CreationDate}}</span>
+<span class="favorite" title="Add to favorite">☆</span>
+</div>
+{{{Body}}}
+</div>
+{{/answers}}
+<a href="https://stackoverflow.com/questions/{{question.Id}}" target="_blank">https://stackoverflow.com/questions/{{question.Id}}</a>
+<span class="copyright">All rights reserverd by StackOverflow and ISO C++</span>
+</div>
+</div>
+</script>
+</head>
+<body>
+
+<div id="right">
+    <iframe class="n3337" src="/pdfjs/web/viewer.html?file=/std_n3337.pdf#chapter.1"></iframe>
+    <iframe class="n4140" src="/pdfjs/web/viewer.html?file=/std_n3337.pdf#chapter.1"></iframe>
+    <iframe class="n4659" src="/pdfjs/web/viewer.html?file=/std_n4659.pdf#chapter.1" style="display: block"></iframe>
+</div>
+
+<div id="left">
+    <div id="state_table">
+        <table id="questions" class="display"></table>
+    </div>
+    <div id="state_post">
+    </div>
+</div>
+
+<script src="data_n3337.json"></script>
+<script src="toc_n3337.json"></script>
+<script src="data_n4140.json"></script>
+<script src="toc_n4140.json"></script>
+<script src="data_n4659.json"></script>
+<script src="toc_n4659.json"></script>
+<script>
+
+$('body').on('click', 'td', function(e) {
+    $(e.target).closest('tr').find('a').trigger('click');
+});
+$('body').on('click', 'blockquote.is-ref', function(e) {
+    var marker = e.target.id, blockquote = $(this), draft;
+    if (!marker) {
+        marker = $(e.target).closest('*[id]').attr('id');
+    }
+    if (!blockquote.is('blockquote')) {
+        blockquote = $(this).closest('blockquote');
+    }
+    draft = $('.tag.active', blockquote).data('draft');
+    var dest = toc[draft][marker];
+    if (dest) {
+        var std = 'std_' + draft + '.pdf';
+        $('iframe').hide();
+        var frm = $('iframe.' + draft);
+        frm.show();
+        frm[0].contentWindow.location.replace(prefix + '/pdfjs/web/viewer.html?file=' + prefix + '/' + std + '#' + dest);
+        console.info('Jump to"' + marker + '"');
+    }
+    else {
+        console.warn('Marker "' + marker + '" not found');
+    }
+});
+
+var table = [], obj, tbody, row, meta,
+    coming_from_table = false;
+
+
+var templates = {
+    loading: $('#template_loading').html(),
+    expanded: $('#template_expanded').html(),
+    tag: $('#template_tag').html(),
+};
+
+for (var key in templates) {
+    Mustache.parse(templates[key]);
+}
+
+
+function title_link(id, line) {
+    var uri = prefix + '/?q=' + id;
+    line = line.replace(/</g, '&lt;');
+    line = line.replace(/>/g, '&gt;');
+    return '<span style="word-break:break-all;"><a href="' + uri + '">' + line + '</a></span>'
+}
+
+
+function format_date(line){ return line.substr(0, 7); }
+
+function number_of_bqids(row)
+{
+    var key;
+    for (key in row.bq_ids) {
+        return row.bq_ids[key].length;
+    }
+    return 0;
+}
+
+for (id in data) {
+    row = data[id];
+    meta = row.meta;
+    table.push([
+        id,
+        meta.AnswerCount,
+        meta.Score,
+        meta.ViewCount,
+        number_of_bqids(row),
+        title_link(id, meta.Title),
+        format_date(meta.CreationDate),
+    ])
+}
+
+function load(id) {
+    $.ajax({
+        url: prefix + '/posts_server/' + id + '.json', 
+        jsonpCallback: 'post_cb',
+        dataType: 'jsonp',
+        success: function(data) {
+            render_expanded(id, data);
+        }
+    });
+
+    var el = $(Mustache.render(templates.loading, data[id]));
+    el.width($('#left').width() - 20);
+    $('#state_table').hide();
+    $('#state_post').html(el).show();
+}
+
+function question(id, data)
+{
+    return data[id];
+}
+
+function accepted(id, data)
+{
+    var accepted = data[id].AcceptedAnswerId;
+    return data[accepted];
+}
+
+function answers(id, data)
+{
+    var copy = [],
+        accepted = data[id].AcceptedAnswerId;
+    for(var key in data) {
+        if (data[key].PostTypeId == '2' && key != accepted) {
+            copy.push(data[key]);
+        }
+    }
+    // sort by score
+    copy.sort(function(a, b) {
+        return parseInt(b.Score) - parseInt(a.Score);
+    });
+    return copy;
+}
+
+function drafts_by_score(bq_ids, id)
+{
+    var result = {}, draft_id;
+    for (draft_id in bq_ids) {
+        if (bq_ids[draft_id][id]) {
+            result[draft_id] = bq_ids[draft_id][id].quality;
+        }
+    }
+    return result;
+}
+
+function calc_score_per_draft(qualities_by_draft)
+{
+    var max_length = 0, key;
+    for (key in qualities_by_draft) {
+        max_length = Math.max(max_length, qualities_by_draft[key].length);
+    }
+    var result = [];
+    for (var key in qualities_by_draft) {
+        // compute the highest average score
+        var draft = qualities_by_draft[key];
+        var sum = _.reduce(draft, function(memo, num){ return memo + num; }, 0);
+        result.push({
+            name: key,
+            scores: draft,
+            average: Math.round(sum / max_length * 100) / 100,
+        });
+    }
+    result.sort(function(a, b) {
+        if (a.average == b.average) {
+            return parseInt(b.name.substring(1)) - parseInt(a.name.substring(1));
+        }
+        return b.average - a.average;
+    });
+    return result;
+}
+
+function render_expanded(id, data)
+{
+    var $el = $('#post_' + id + ' .post-inner');
+    $el.html(Mustache.render(templates.expanded, {
+        question: question(id, data),
+        accepted: accepted(id, data),
+        answers: answers(id, data)}));
+    $el.find('pre code').addClass('cpp').each(function(i, block) {
+        hljs && hljs.highlightBlock(block);
+    });
+    $el.find('blockquote').each(function(i, block) {
+        // afraid of nested blockquotes atm
+        if ($(this).parent('blockquote').length > 0) {
+            return;
+        }
+
+        var els = [block], i, el, draft_id;
+        $('p', this).each(function() { els.push(this); });
+        var qualities_by_draft = {};
+
+        for (i = 0; i<els.length; ++i) {
+            el = els[i];
+
+            var el_drafts = drafts_by_score(data.bq_ids, el.id);
+            if (Object.keys(el_drafts).length > 0) {
+                $(el).addClass('valid-ref');
+            }
+
+            for(draft_id in el_drafts){
+                if (!qualities_by_draft[draft_id]) {
+                    qualities_by_draft[draft_id] = [];
+                }
+                qualities_by_draft[draft_id].push(el_drafts[draft_id]);
+            }
+        }
+
+        var score_per_draft = calc_score_per_draft(qualities_by_draft);
+        if (score_per_draft.length > 0) {
+            $(block).data('isos', qualities_by_draft).addClass('is-ref').prepend(
+                    Mustache.render(templates.tag, {isos: score_per_draft}));
+            $('.tag:first', block).addClass('active');
+        }
+    });
+}
+
+var datatable = $('#questions').DataTable({
+    data: table,
+    columns: [{
+            className:      'details-control',
+            orderable:      false,
+            data:           null,
+            defaultContent: ''
+        },
+        { className: 'answer_count', title: '#A' },
+        { className: 'score', title: 'S' },
+        { className: 'views', title: '#V' },
+        { className: 'references', title: '#R' },
+        { title: 'Title' },
+        { className: 'date', title: 'Date' },
+    ],
+    scrollY:        '90vh',
+    deferRender:    true,
+    scroller:       true,
+    order: [[6, 'desc']]
+});
+
+$('th.answer_count').attr('title', 'Number of answers');
+$('th.score').attr('title', 'Score of the question');
+$('th.views').attr('title', 'Number of views');
+$('th.references').attr('title', 'Number of references to the standard in the question');
+$('th.date').attr('date', 'Date when the question was posted');
+
+
+$('#left').on('click', '#return_to_table', function() {
+    if (coming_from_table) {
+        history.back();
+    }
+    else
+    {
+        window.history.pushState('Home', 'Home', prefix + '/');
+        refresh();
+    }
+});
+$('body').on('click', '#state_table a', function(e) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    var $target = $(e.target),
+        uri = $target.attr('href'),
+        name = $target.text();
+    window.history.pushState(name, name, uri);
+    var tr = $(e.target).closest('tr');
+    var row = datatable.row( tr );
+    load(row.data()[0]);
+});
+
+$('body').on('click', '.ref-tags .tag', function(e) {
+    $(e.target).addClass('active').siblings().removeClass('active');
+});
+
+function refresh() {
+    var uri = document.location.search,
+        matcher = uri.match(/.*\?q=([0-9]+)/)
+    if (matcher) {
+        load(matcher[1]);
+    }
+    else {
+        $('#state_table').show();
+        $('#state_post').hide();
+        coming_from_table = true;
+    }
+}
+
+window.onpopstate = function(event) {
+    refresh();
+};
+// call once when finished loading
+refresh();
+
+
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-118672456-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-118672456-1');
+</script>
+</body>
+</html>

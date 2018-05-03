@@ -1,0 +1,243 @@
+body {
+    font-size: 1.4em;
+}
+
+.dataTables_length {
+    display: none;
+}
+.dataTables_info {
+    position: absolute;
+    bottom: 0;
+}
+#questions_filter {
+    margin-bottom: 14px;
+}
+
+a {
+    text-decoration: none;
+}
+table {
+  width:100%;
+}
+table td.date {
+    font-size: 0.6em;
+    color: #aaa;
+}
+body {
+    font-family: "Lora";
+    overflow: hidden;
+}
+span.title {
+    word-break: break-word;
+}
+#left, #right {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    overflow-y: hidden;
+}
+iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+
+#left {
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+#state_table, #state_post {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+#state_post {
+    padding-top: 2em;
+    display: none;
+    overflow: auto;
+}
+#return_to_table {
+    position: fixed;
+    padding: 0.5em 1.2em;
+    top: 0;
+    left: 0;
+    background-color: white;
+    cursor: pointer;
+}
+
+#right {
+    right: 0;
+    background-color: #444;
+}
+.details-control {
+    width: 20px;
+}
+
+th {
+    cursor: pointer;
+}
+tr td {
+    padding: 0.5em 0;
+}
+tr:nth-child(even) {
+    background-color: #fafafa;
+}
+tr:hover {
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+tr.shown td.details-control {
+    background: url('../resources/details_close.png') no-repeat center center;
+}
+.dataTables_paginate {
+    display: none;
+}
+.post-inner {
+    margin: 0 0.5em 0 1em;
+    line-height: 1.2em;
+}
+.post * {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+.answer {
+    border-top: 1px solid #ccc;
+    margin: 2em 0 2.5em;
+    padding-bottom: 0.5em;
+}
+.accepted {
+    border-top: 1px solid green;
+}
+.accepted, .accepted blockquote.is-ref .ref-tags {
+    background-color: #e9fde9;
+}
+.accepted .top_box {
+    color: #277d31;
+}
+.accepted .top_box .created {
+    color: #68b971;
+}
+
+.top_box {
+    font-size: 0.8em;
+    color: #666;
+    margin: 0.2em 0 -0.4em 0.2em;
+}
+.top_box span {
+    display: inline-box;
+}
+.top_box .created {
+    color: #aaa;
+    float: right;
+    padding-right: 0.5em;
+}
+.top_box .favorite {
+    float: right;
+    margin-right: 0.3em;
+}
+h2 {
+    line-height: 1.2em;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0.8em;
+    letter-spacing: 0.04em;
+}
+p {
+    margin: 1em 0;
+}
+pre {
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: pre;
+    font-family: monospace;
+    margin: 1em 0em;
+    line-height: 1.1em;
+}
+pre code {
+    background-color: #f2f2f2 !important;
+}
+blockquote {
+    margin-bottom: 1em;
+    background-color: #fdfdd2;
+    border-left: 2px solid #ffe529;
+    padding-bottom: 1.2em;
+    line-height: 1.3em;
+}
+blockquote pre {
+    margin: 0.6em 1em;
+}
+blockquote p {
+    display: block;
+    padding: 1.2em 1.5em 0;
+    margin: 0;
+}
+blockquote.is-ref {
+    background-color: #d2fdd7;
+    border-color: #55ab5f;
+}
+.valid-ref {
+    cursor: pointer;
+}
+blockquote h2, blockquote h3 {
+   margin: 1em 0.5em 
+   font-weight: bold;
+}
+blockquote.is-ref p{
+    margin-top: 0;
+}
+ul, ol {
+    margin: 0 2.5em 0 1.5em;
+    padding: 0.5em 0em 0 2em;
+}
+li {
+    padding-top: .5em;
+}
+ol {
+    list-style-type: decimal;
+}
+ul {
+    list-style-type: disc;
+}
+em {
+    font-style: italic;
+}
+blockquote .ref-tags {
+    display: block;
+    margin-left: 0;
+    background-color: white;
+}
+blockquote .ref-tags .tag {
+    cursor: pointer;
+    display: inline-block;
+    background-color: #bfdec8;
+    color: black;
+    font-weight: normal;
+    padding: 5px 10px 3px;
+    font-size: 0.7em;
+    line-height: 1em;
+    font-family: monospace;
+    margin-right: 5px;
+}
+
+blockquote .ref-tags .tag.active {
+    background-color: #d2fdd7;
+}
+code {
+    font-family: monospace;
+    background-color: #f0f0f0;
+    padding: 1px 5px;
+}
+strong {
+    font-weight: bold;
+}
